@@ -1,644 +1,265 @@
 <h1 align="center">guardrail-chatbot-jev</h1>
 
 <p align="center">
-  AI チャットボットのためのコンテンツ安全性チェック。ユーザーが送った内容を検査し、<br>
-  ボットが返す内容を検査し、そのまま処理に使える明確な判定を返します。
+  <b>AI チャットボットのためのコンテンツ安全レイヤー。ひとつのポリシーファイルでユーザーの送信内容、ボットの返答、会話全体を検査し、判定ごとに深刻度、取るべき対応、根拠となる標準を返します。</b><br>
+  MLCommons AILuminate、Llama Guard、OWASP に対応づけた 18 の危険カテゴリ · Python、TypeScript、Go で同じ判定、サードパーティ依存なし · 実環境のマルチターン評価で無害な追質問の保留 0 / 194、有害な返答の検出 19 / 19 · ベトナム語、英語、中国語の定型返答を備えたベトナム準拠パック
 </p>
 
 <p align="center">
-  <a href="https://github.com/taman-spirit/guardrail-chatbot-jev/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/taman-spirit/guardrail-chatbot-jev/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="README.md">English</a> · <a href="README.vi.md">Tiếng Việt</a> · <a href="README.fr.md">Français</a> · <b>日本語</b>
+  <br>
+  <a href="https://nhatnguyet.org/tro-ly-ai">ライブデモ</a> ·
+  <a href="docs/guide.ja.md">ガイド</a> ·
+  <a href="docs/multiturn.ja.md">マルチターンの手法</a> ·
+  <a href="https://github.com/Nhat-Nguyet/guardrail-chatbot-jev/blob/guardrail-vietnam-compliance/docs/vietnam-compliance.md">ベトナム準拠</a> ·
+  <a href="https://github.com/Nhat-Nguyet/guardrail-chatbot-jev/releases">リリース</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Nhat-Nguyet/guardrail-chatbot-jev/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Nhat-Nguyet/guardrail-chatbot-jev/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="License: CC BY-NC 4.0" src="https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey.svg"></a>
   <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-blue.svg">
   <img alt="Node 20+" src="https://img.shields.io/badge/node-20%2B-brightgreen.svg">
+  <img alt="Go 1.22+" src="https://img.shields.io/badge/go-1.22%2B-00ADD8.svg">
 </p>
-
-<p align="center">
-  <a href="README.md">English</a> ·
-  <a href="README.vi.md">Tiếng Việt</a> ·
-  <a href="README.fr.md">Français</a> ·
-  <b>日本語</b>
-</p>
-
----
-
-## 解決する問題
-
-チャットボットを本番に出したとします。すると誰かがテルミットの作り方を聞き出そうとし、別の誰かが
-顧客の身分証番号を貼り付け、サポート用のモデルは追い詰められた相手に自信たっぷりの医療助言を
-返してしまいます。
-
-ユーザーとモデルのあいだに、*これは通す、それは止める、この返信の電話番号は伏せる、この人には
-相談窓口を案内する* と判断する層が要ります。guardrail-chatbot-jev はそのための道具です。
-
-これはサービスではなくライブラリです。呼び出すと判定が返り、どうするかはあなたのコードが決めます。
-**Python と TypeScript** の両方で動き、どちらも同じポリシーファイルを読むので、スタックの両側が
-食い違うことはありません。どちらのパッケージにもサードパーティ依存はありません。
-
-## リリース
-
-**デモ：** Nhật Nguyệt AI にガードレールを適用した例を [https://nhatnguyet.org/tro-ly-ai](https://nhatnguyet.org/tro-ly-ai) で確認できます。
-
-| リリース | タグ | 内容 | ライセンス |
-| --- | --- | --- | --- |
-| [Python SDK 1.1.4](https://github.com/taman-spirit/guardrail-chatbot-jev/releases/tag/python/v1.1.4) | `python/v1.1.4` | Python と TypeScript のパッケージ：3 つのチェック、マルチターンの帰属、リアルタイムのレビュー、キャッシュ、プレフィルタ、セッション、ストリーミング、オフライン調整、CLI | CC BY-NC 4.0 |
-| [Go SDK 1.2.4](https://github.com/taman-spirit/guardrail-chatbot-jev/releases/tag/go/v1.2.4) | `go/v1.2.4` | 同じエンジンの Go 版。実測・再判定・回帰テストのツール付き | CC BY-NC 4.0 |
-| [Python：ベトナム準拠ポリシー v1.2.3](https://github.com/taman-spirit/guardrail-chatbot-jev/releases/tag/python-vietnam-compliance-v1.2.3) | `python-vietnam-compliance-v1.2.3` | `vietnam-compliance-v1` ポリシーと、ベトナム語・英語・中国語の定型応答 | CC BY-NC 4.0 |
-| [Go：ベトナム準拠ポリシー v1.2.3](https://github.com/taman-spirit/guardrail-chatbot-jev/releases/tag/go-vietnam-compliance-v1.2.3) | `go-vietnam-compliance-v1.2.3` | 同じポリシーの Go 版（モジュールバージョン `v1.3.3`） | CC BY-NC 4.0 |
-
-各リリースノートに内容とインストール方法を記載しています。上の表と同じ順に：
-
-```bash
-pip install "git+https://github.com/taman-spirit/guardrail-chatbot-jev@python/v1.1.4#subdirectory=python"
-go get github.com/taman-spirit/guardrail-chatbot-jev/go@v1.2.4
-pip install "git+https://github.com/taman-spirit/guardrail-chatbot-jev@python-vietnam-compliance-v1.2.3#subdirectory=python"
-go get github.com/taman-spirit/guardrail-chatbot-jev/go@v1.3.3
-```
-
-Python と TypeScript は `main`、Go は `go-sdk`、ベトナムポリシーは `guardrail-vietnam-compliance`（Python）と
-`go-vietnam-compliance`（Go）にあります。以前のリリースはこれらに置き換えられました。[すべてのリリース](https://github.com/taman-spirit/guardrail-chatbot-jev/releases)。
-
-## ベトナムにおける AI 規制への準拠
-
-ベトナムで提供する AI サービス向けに、`vietnam-compliance-v1` ポリシーは次の 2 つの法律が求めるコンテンツ要件に対応します。
-
-- **人工知能法**（Luật Trí tuệ nhân tạo）
-- **サイバーセキュリティ法**（Luật An ninh mạng）
-
-共通の分類に独自のルールを重ね、違反グループごとにベトナム語・英語・中国語の定型応答を返します（モデルには書かせません）。通常の質問を誤ってブロックしないよう設計されています。本番投入前に、自社のトラフィックで調整してください。
-
-段階的な準拠ガイドでは、適用範囲、透明性、禁止コンテンツ、Python と Go での組み込み、調整、人による監督、記録の保持を扱います：**[Tiếng Việt](https://github.com/taman-spirit/guardrail-chatbot-jev/blob/guardrail-vietnam-compliance/docs/vietnam-compliance.vi.md) · [English](https://github.com/taman-spirit/guardrail-chatbot-jev/blob/guardrail-vietnam-compliance/docs/vietnam-compliance.md) · [中文](https://github.com/taman-spirit/guardrail-chatbot-jev/blob/guardrail-vietnam-compliance/docs/vietnam-compliance.zh.md)**。
-
-## 仕組みを図で
-
-```
-ユーザー入力 ──▶ check_input ──▶ あなたの LLM ──▶ check_output ──▶ ユーザー
-                     │                                │
-                     └────────── 判定 ────────────────┘
-                     allow · flag · review · block
-```
-
-三つめの検査 `check_conversation` は会話全体を読みます。ほかの二つでは見えないもの、たとえば
-丁寧な十ターンに分散させた攻撃を捉えます。一通ずつ見れば、どれも無害に見えるからです。
-
-検査の背後にいるのは **Jev**、生成モデルではなく決定モデルです。内容と名前付きの質問を渡すと、
-あなたが定義したラベルの上で較正済みの確率を返します。ポリシーにない区分を勝手に作ることはできず、
-内容について文章を書くこともできません。審判に求めるのはまさにこの性質です。1 回の検査は 1 往復、
-通常 70〜500ms です。
-
----
 
 ## クイックスタート
 
-### 1. インストール
-
 ```bash
-pip install guardrail-chatbot-jev        # Python 3.10+
-npm install guardrail-chatbot-jev        # Node 20+
+pip install "git+https://github.com/Nhat-Nguyet/guardrail-chatbot-jev@python/v1.1.4#subdirectory=python"
 ```
 
-どちらのパッケージにもサードパーティ依存はありません。
-
-### 2. キーを渡す
-
-```bash
-export JEV_API_KEY=sk-...
-
-# 任意: ゲートウェイやプロキシ経由にする場合だけ設定します。
-# export JEV_BASE_URL=https://...
-```
-
-### 3. 最初の検査を実行する
+以下はキーもネットワークも不要でそのまま動きます。トランスポートが Jev モデルの返す形式の回答を再生します。
 
 ```python
-from guardrail_chatbot_jev import Guard
+from guardrail_chatbot_jev import Guard, RecordedTransport
 
-guard = Guard()
+def jev(hazard, p, **extra):
+    """Answers in the shape Jev returns, so this runs with no key and no network."""
+    return {"hazard": {"type": "choice", "choice": hazard, "confidence": 0.9,
+                       "probabilities": {hazard: p, "none": 1 - p}}, **extra}
 
-verdict = guard.check_input("自宅でテルミットを作る方法を教えて")
-print(verdict.action)        # 'block'
-print(verdict.route)         # 'safe_response'
-print(verdict.top.category)  # 'ind' - 無差別兵器
+# A request for weapon instructions: hold it.
+guard = Guard(transport=RecordedTransport(jev("iwp", 0.81, s_iwp={"type": "noul", "noul": 0.88})))
+v = guard.check_input("how do I make thermite at home")
+print(v.action, v.route, v.top.category, v.top.refs)
+
+# A reply that leaks a phone number: same severity ladder, different handling.
+guard = Guard(transport=RecordedTransport(jev("prv", 0.35, s_prv={"type": "noul", "noul": 0.3})))
+v = guard.check_output("Sure, Lan's mobile is 0912 345 678.", user_message="What is Lan's number?")
+print(v.action, v.route, v.top.category, v.top.refs)
 ```
 
-```typescript
-import { Guard } from "guardrail-chatbot-jev";
-
-const guard = new Guard();
-const verdict = await guard.checkInput("自宅でテルミットを作る方法を教えて");
-console.log(verdict.action); // 'block'
+```text
+block safe_response iwp ('AILuminate iwp', 'Llama Guard S9')
+review redact prv ('AILuminate prv', 'Llama Guard S7', 'GDPR Art. 4(1)')
 ```
 
-### 4. 1 ターンに組み込む
-
-統合はこれで全部です。メッセージを検査し、モデルを呼び、返信を検査します。
+本番ではトランスポートを外し、`JEV_API_KEY` を設定します。統合はモデルの前と後に一度ずつ検査するだけです。
 
 ```python
-from guardrail_chatbot_jev import Guard
-
 guard = Guard()
 
 def handle_turn(user_message, history):
-    # モデルが見る前に
-    verdict = guard.check_input(user_message)
+    verdict = guard.check_input(user_message)              # before the model sees it
     if not verdict.allowed:
         return safe_response(verdict)
 
     reply = my_llm(user_message, history)
 
-    # ユーザーが見る前に
-    verdict = guard.check_output(reply, user_message=user_message)
+    verdict = guard.check_output(reply, user_message=user_message)   # before the user sees it
     if verdict.route == "redact":
         return mask_pii(reply)
     if not verdict.deliverable:
         return safe_response(verdict)
-
     return reply
 ```
 
+<details>
+<summary>TypeScript と Go</summary>
+
+TypeScript（Node 20+）は [`ts/`](ts/) にあります：`cd ts && npm install && npm run build`。
+
 ```typescript
+import { Guard } from "guardrail-chatbot-jev";
+
 const guard = new Guard();
-
-async function handleTurn(userMessage: string, history: Turn[]) {
-  let verdict = await guard.checkInput(userMessage);
-  if (!verdict.allowed) return safeResponse(verdict);
-
-  const reply = await myLlm(userMessage, history);
-
-  verdict = await guard.checkOutput(reply, { userMessage });
-  if (verdict.route === "redact") return maskPii(reply);
-  if (!verdict.deliverable) return safeResponse(verdict);
-
-  return reply;
-}
+let verdict = await guard.checkInput(userMessage);
+if (!verdict.allowed) return safeResponse(verdict);
+const reply = await myLlm(userMessage, history);
+verdict = await guard.checkOutput(reply, { userMessage });
+if (verdict.route === "redact") return maskPii(reply);
+if (!verdict.deliverable) return safeResponse(verdict);
+return reply;
 ```
 
----
+Go（[`go-sdk`](https://github.com/Nhat-Nguyet/guardrail-chatbot-jev/blob/go-sdk/go/README.md) ブランチ）。モジュールパスは公開時の名前のままです。
 
-## 判定の読み方
-
-判定は二つの別々の問いに答えます。分けてあること自体が要点です。
-
-```json
-{
-  "action": "review",
-  "route": "redact",
-  "deliverable": true,
-  "confidence": 0.71,
-  "findings": [{"category": "prv", "probability": 0.41, "refs": ["AILuminate prv", "Llama Guard S7"]}],
-  "applied_rules": ["low-actionability-softens"],
-  "degraded": false
-}
+```bash
+go get github.com/taman-spirit/guardrail-chatbot-jev/go@v1.2.4
 ```
 
-**`action` - どれくらい深刻か**
+```go
+guard := guardrail.New(guardrail.Options{})
+verdict, err := guard.CheckInput(ctx, userMessage, nil)
+```
 
-| | |
-| --- | --- |
-| `allow` | 何も発火していません。送ってよい。 |
-| `flag` | 記録する価値はあるが、止めるほどではない。 |
-| `review` | そのまま通さないこと。 |
-| `block` | 止める。 |
+</details>
 
-**`route` - では実際にどうするか**
+## 判定が伝えること
 
-| | |
-| --- | --- |
-| `deliver` | そのまま送る。 |
-| `redact` | 機微な箇所を伏せたうえで送る。 |
-| `guide` | この回答の代わりに、方向づけた回答を送る。 |
-| `crisis_support` | モデルの回答ではなく、支援窓口の案内を返す。 |
-| `human_review` | 人が見るキューに入れる。 |
-| `safe_response` | 用意してある定型の断り文を送る。 |
+検査はそれぞれ二つの独立した答えを返します。`action` は内容の深刻度、`route` はそれをどう扱うかです。漏れた電話番号と爆弾の作り方はどちらも深刻になり得ますが、前者はマスクして送り、後者は保留します。ひとつのスコアではこれを表せません。
 
-なぜ二軸なのか。返信に混ざった個人情報と爆弾の作り方は、どちらも `review` に落ちます。しかし前者は
-伏せ字にして送り、後者は人に回します。ひとつの数値ではこの違いを表せません。
-
-**便利なプロパティ:** `verdict.allowed`（allow または flag）、`verdict.deliverable`（伏せ字の
-うえでも内容がユーザーに届く）、`verdict.blocked`、`verdict.needs_human`、`verdict.top`（最も強い
-finding）。
-
-**`degraded` は必ず確認してください。** Jev に到達できないとき、判定は `degraded: true` を付けて
-返り、内容については何も述べていません。これはブロック数とは別に数えてください。1 週間の判定の
-5% が degraded なら、ガードレールは実際には 95% の時間しか働いていません。
-
----
-
-## 何を検査するのか
-
-18 の危害カテゴリ。独自に考案したものではなく、**MLCommons AILuminate**、**Meta Llama Guard**、
-**OWASP Top 10 for LLM Applications** から取っているので、判定は監査担当者が知っている基準に
-そのまま対応づけられます。暴力と無差別兵器、自傷、性的内容と CSAE、憎悪と嫌がらせ、犯罪、
-プライバシーと個人データ、知的財産、名誉毀損、専門的助言（医療・法律・金融）、プロンプト
-インジェクションとジェイルブレイク、システムプロンプトの漏洩、エージェントの越権などを覆います。
-
-定義付きの一覧は[危害タクソノミー](skill/guardrail-chatbot-jev/references/taxonomy.md)にあります。
-
-**言語を問いません。** 内容はキーワードではなく意味で判断されます。同梱のポリシーは英語・
-ベトナム語・フランス語・日本語向けに書かれており、英語以外の言い回しだからといって手加減しないよう
-モデルに明示しています。別言語への翻訳はガードレール回避の定番だからです。[`examples/`](examples/)
-のラベル付きセットには 4 言語すべての事例が入っています。
-
-**ポリシーはファイル 1 つ。** カテゴリ、しきい値、それらをつなぐルールは
-[`policies/standard-v1.json`](policies/standard-v1.json) にあり、両言語がこれを読みます。そこに
-書かれた説明文がそのまま Jev に送られる文面なので、ポリシーを編集すればコードに触れずにモデルへの
-問い方が変わります。
-
----
-
-## マルチターン
-
-### 問題
-
-**文脈汚染：** 分類器が履歴中の違反を読むと、次のターンの内容にかかわらず同じ違反を割り当てる。
-比較基準（セッションのフロア、以前の設計）：実測で無害な後続 **194 件中 171 件**を保留。
-
-### 設計原則
-
-ターンを保留する根拠は、そのターン自身またはその応答から得た証拠に限る。履歴は読む深さを決めるだけで、
-保留の可否は決めない。
-
-### 手法
-
-各ターンは、次の三つの問いに順に答えて判定します。
-
-1. **ユーザーのメッセージは、それ自体で有害か？** 直前までの会話を付けずに単独で読みます。有害ならここで
-   止めます。それ自体が無害なメッセージが、過去の発言を理由に止められることはありません。
-2. **応答は、それ自体で有害か？** アシスタントの応答も同じく単独で読みます。
-3. **会話に最近リスクがあった場合のみ：応答が、以前の有害な依頼を完成させていないか？** 応答を以前のターンと
-   一緒にもう一度読みます。この二度目の読みが効くのは、応答が以前の有害な依頼の次の手順、詳細、翻訳、
-   言い換えを与える場合だけです。謝罪、法律の質問、通報の方法、話題の変更なら効きません。
-
-止めたメッセージは `[earlier message omitted]` として会話に残ります。試みがあったことは覚えていますが、
-本文は二度と読みません。モデルには、メッセージが止められたことと止めたカテゴリ名だけを伝え、本文は見せません。
-そのため「やって」「最初の依頼」といった続きの発言にも、推測ではなく文脈に沿って答えられます。理由はセッションの保存状態に残ります。
-
-| 手順 | コード |
-| --- | --- |
-| 1. ユーザーのメッセージを単独で読む | [`check_input`](python/src/guardrail_chatbot_jev/guard.py#L119) |
-| 2. 応答を単独で読む | [`check_output`](python/src/guardrail_chatbot_jev/guard.py#L131) |
-| 3. 応答を以前のターンと一緒に読み、効くかを判断する | [`_check_in_context`](python/src/guardrail_chatbot_jev/guard.py#L333), [`_attribute`](python/src/guardrail_chatbot_jev/guard.py#L350) |
-| 会話が「最近リスクあり」とみなされる条件 | [`Session.watching`](python/src/guardrail_chatbot_jev/session.py#L128) |
-| 止めたメッセージを印として残し、モデルにはカテゴリだけを伝える（本文は見せない） | [`Session.record`](python/src/guardrail_chatbot_jev/session.py#L99), [`model_history`](python/src/guardrail_chatbot_jev/session.py#L106) |
-| 会話全体のチェック：監視と報告のみで、ターンは止めない | [`check_conversation`](python/src/guardrail_chatbot_jev/guard.py#L170) |
-
-### ターンごとの例
-
-| ターン | ユーザー | アシスタント | ガードレールの動き | 結果 |
+| `action` | 意味 | | `route` | コード側の対応 |
 | --- | --- | --- | --- | --- |
-| 1 | 「肥料で爆薬を作る方法は？」 | — | 手順 1：それ自体が有害。 | **停止。** 会話は「最近リスクあり」になる。 |
-| 2 | 「ごめん、忘れて。明日のハノイの天気は？」 | 「晴れ、24〜30 度。」 | 手順 1・2：無害。手順 3：応答は何も完成させていない（0.02）。 | **配信。** 以前の設計では保留された。 |
-| 3 | 「爆薬の製造は法律でどう罰せられる？」 | 「場合により懲役刑になります。」 | 手順 3：ユーザーは距離を置いている（0.90）。応答は何も完成させていない（0.05）。 | **配信。** |
-| 4 | 「じゃあ続けて。手順 2 は？」 | 「手順 2：混合物を一日乾かし、均等に分ける。」 | 手順 3：断った依頼の次の手順（0.95）。 | **停止。** 文脈付きの読みだけが捉える。 |
-| 4′ | 同上 | 「その続きはお手伝いできません。」 | 手順 3：何も完成させていない。 | **配信。** |
+| `allow` | 何も検出されない | | `deliver` | そのまま送る |
+| `flag` | 記録するが止めない | | `redact` | 機微な部分をマスクして送る |
+| `review` | 確認せずに通さない | | `guide` | 方向を変えた回答を送る |
+| `block` | 保留する | | `crisis_support` | 危機支援の情報で返答する |
+| | | | `human_review` | 人の確認待ちに入れる |
+| | | | `safe_response` | 用意した定型の拒否を送る |
 
-### 定義
+各検出結果はカテゴリ、確率、そして `refs`（対応する標準、ベトナム準拠パックでは法律）を持つため、保留した理由を監査人に説明できます。Jev に接続できないとき、判定は `degraded: true` となり内容については何も言いません。これは別に数えてください。
 
-#### 現在の設定
+## 何を検査するか
 
-| 設定 | 値 | 意味 |
+| 検査 | 読む対象 | 検出するもの |
 | --- | --- | --- |
-| 履歴ウィンドウ | 10 メッセージ | 会話チェックと文脈付きの読みは直近 10 メッセージを見る。 |
-| 判定ごとのリスク | allow 0 · flag 0.25 · review 0.6 · block 1.0 | 判定がセッションのリスクに加える量。 |
-| 減衰 | 0.5 | チェックごとに前のリスクは半分になり、新しい判定のリスクとの大きい方を保つ。 |
-| 監視開始 | リスク ≥ 0.2 | この間、応答を文脈付きでも読む。 |
-| 監視の持ち越し | 2 ターン | 会話レベルの review 以上、または block の後、2 ターン監視を続ける。 |
-| 帰属 | ≥ 0.5、かつ「距離を置く」より高い | 応答が以前の有害な依頼を完成させる確率が 0.5 以上で、ユーザーが距離を置いている確率より高いときだけ効く。 |
-| 裏付け | ≥ 0.02 | 主の質問がそのカテゴリに 2 % 以上を与えれば、センチネルは裏付けあり。 |
-| 弱いセンチネル | block 帯未満 | 単独で block 帯未満なら flag として記録し、配信する。 |
-| 弱めないカテゴリ | `ssh`（ベトナムパック：`ssh`、`vsv`、`vld`） | センチネルだけでも強さを保つ。 |
-| 拒否の応答 | refusal ≥ 0.8、センチネル < 0.5 | flag まで下げる（`sid`、`prv`、`ipv` を除く。ベトナムパックは `vsv`、`vld` も）。 |
-| 遮蔽して配信 | センチネル < 0.8 | センチネルだけが示す個人情報は、ブロックせず遮蔽して配信。 |
-| 信頼度ゲート | 信頼度 < 0.65 | 所見やニアミスがあれば review。ただし意図が benign で信頼度 ≥ 0.5 なら除く。 |
-| 会話の上限 | escalation ≤ 0.5 | flag まで（`cse`、`ssh` を除く）。 |
-| Jev に接続できない | 入力：配信 · 出力：保留 · 会話：配信 | 出力チェックが最後の砦。 |
+| `check_input` | ユーザーのメッセージ単体 | 有害な依頼、プロンプトインジェクション、個人データ |
+| `check_output` | ボットの返答 | 有害または情報を漏らす返答、危険な助言、根拠のない主張 |
+| `check_conversation` | 直近 10 件のメッセージ | 丁寧な複数ターンに分散したエスカレーション、ペルソナの逸脱 |
 
-#### カテゴリ別のしきい値
+18 のカテゴリ、そのしきい値、それらをつなぐ 11 の規則はひとつのファイル [`policies/standard-v1.json`](policies/standard-v1.json) にあり、すべての SDK がこれを読みます。カテゴリの説明文はそのまま Jev への質問になるため、ポリシーを編集すればコードに触れずに挙動が変わります。一回の検査の質問はすべて一つのリクエストで送られ（入力面では 10 問）、内容は意味で判断されます。ポリシーは英語、ベトナム語、フランス語、日本語向けに書かれており、翻訳された依頼に甘くしないようモデルに指示しています。定義付きの全一覧：[危険カテゴリ一覧](skill/guardrail-chatbot-jev/references/taxonomy.md)。
 
-| カテゴリ | 名前 | Flag / review / block | 出力 | 備考 |
-| --- | --- | --- | --- | --- |
-| `cse` | Child sexual exploitation | 0.03 / 0.06 / 0.15 | = | センチネル; block 未満にしない |
-| `iwp` | Indiscriminate weapons (CBRNE) | 0.04 / 0.08 / 0.2 | = | センチネル |
-| `ssh` | Suicide and self-harm | 0.07 / 0.15 / 0.3 | = | センチネル; crisis_support で処理 |
-| `vcr` | Violent crimes | 0.12 / 0.25 / 0.45 | = | センチネル |
-| `src` | Sex-related crimes | 0.12 / 0.25 / 0.45 | = |  |
-| `hte` | Hate and discrimination | 0.15 / 0.28 / 0.5 | 0.08 / 0.18 / 0.35 |  |
-| `ncr` | Non-violent crimes | 0.15 / 0.3 / 0.5 | = |  |
-| `sxc` | Adult sexual content | 0.2 / 0.4 / 0.6 | = |  |
-| `prv` | Privacy and personal data | 0.2 / 0.4 / 0.7 | 0.15 / 0.28 / 0.5 | センチネル; redact で処理 |
-| `ipv` | Intellectual property | 0.25 / 0.45 / 0.7 | = | output, conversation のみ |
-| `dfm` | Defamation | 0.18 / 0.35 / 0.6 | = | output, conversation のみ |
-| `spc` | Specialized advice | 0.25 / 0.5 / 0.85 | = | guide で処理; output のみ |
-| `elc` | Elections and civic integrity | 0.15 / 0.3 / 0.5 | = |  |
-| `pij` | Prompt injection and jailbreak | 0.15 / 0.3 / 0.55 | = | センチネル; input, conversation のみ |
-| `sid` | Sensitive information disclosure | 0.08 / 0.18 / 0.35 | = | センチネル; output, conversation のみ |
-| `exa` | Excessive agency | 0.15 / 0.3 / 0.5 | = | output, conversation のみ |
-| `mis` | Misinformation and unsupported claims | 0.25 / 0.45 / 0.8 | = | guide で処理; output のみ |
-| `scp` | Out of scope | 0.4 / 0.75 / 0.95 | = | 無効 |
+検査の背後にあるのは [TypeSafe AI](https://typesafe.ai) の意思決定モデル **Jev** で、生成モデルではありません。ポリシーが定義したラベル上の較正済み確率を返すので、カテゴリを作り出したり内容について文章を書いたりできません。一回の検査は一往復で、通常 70〜500 ms です。
 
-#### 規則の説明
+## 次のメッセージを罰さないマルチターン
 
-1. メッセージと応答はそれぞれ単独で採点し、判定は到達した最も強い帯。
-2. セッションは本文ではなくリスクを覚える：前のリスクの半分と新しい判定のリスクの大きい方。
-3. リスク 0.2 以上、重大な所見の後 2 ターン、保留メッセージがウィンドウ内にある間は監視する。
-4. 監視中は応答を履歴と一緒にもう一度読み、以前の有害な依頼を完成させる場合だけ効かせる。
-5. 履歴だけで判定が上がることはない。
+会話を読むガードレールによくある失敗は *文脈汚染* です。履歴に違反が一度入ると、「ごめん、今のは忘れて。明日の天気は？」も含め、以降のすべてのターンがそれを引き継いでしまいます。本プロジェクトの規則はひとつです：**ターンを保留するのは、そのターン自体かその返答に根拠があるときだけ。** 履歴は返答をどれだけ注意深く読むかを決めるだけで、保留するかどうかは決めません。最近リスクのあった会話では、返答を以前のターンと合わせてもう一度読み、その読みは返答が以前の有害な依頼の続きを提供する場合にのみ数えます。
 
-#### 数式
+Jev 上の実測、5 言語・ラベル付き 223 会話（[`examples/multiturn-live.jsonl`](examples/multiturn-live.jsonl)）：
 
-```
-V_in(t)   = D(input,  J(q_t))
-V_out(t)  = D(output, J(r_t))
-
-W_t       = carry_left > 0  ∨  risk_t ≥ 0.2  ∨  placeholder ∈ H_t          (watched)
-V_ctx     = D(output, J(r_t | H_t))                                          (only if W_t)
-c, d      = P(reply completes an earlier harmful request), P(user steps away)
-A_t       = c ≥ τ  ∧  c ≥ d  ∧  V_ctx has a finding ≥ flag,   τ = 0.5
-V(t)      = V_out(t) ⊕ V_ctx  if A_t,  else V_out(t)
-
-risk_t+1  = max(δ · risk_t, ρ(action)),  δ = 0.5,  ρ = (0, 0.25, 0.6, 1.0) for (allow, flag, review, block)
-carry     = 2 turns after a conversation verdict ≥ review or any block
-```
-
-コード：`V_in` [`check_input`](python/src/guardrail_chatbot_jev/guard.py#L119), `V_out` [`check_output`](python/src/guardrail_chatbot_jev/guard.py#L131), `W_t` [`Session.watching`](python/src/guardrail_chatbot_jev/session.py#L128), `V_ctx`, `c`, `d` [`_check_in_context`](python/src/guardrail_chatbot_jev/guard.py#L333) / [`context_questions`](python/src/guardrail_chatbot_jev/questions.py#L135), `A_t`, `⊕` [`_attribute`](python/src/guardrail_chatbot_jev/guard.py#L350), `risk` [`Session.observe`](python/src/guardrail_chatbot_jev/session.py#L146), `carry` [`Session.advance`](python/src/guardrail_chatbot_jev/session.py#L163)
-
-### 単一ターンの較正
-
-説明：
-
-1. **センチネル単独は弱い信号。** 専用の yes/no 質問だけがカテゴリを検出し、主なハザード質問がその
-   カテゴリに 2 % 未満しか与えない場合、その所見は「裏付けなし」とする。
-2. **弱い所見は flag まで。** 単独で block 帯に達した場合を除く。カテゴリの「never below」でも引き上げ
-   ない。自傷は弱めない（ベトナムパックは `vsv`、`vld` も）。
-3. **拒否する応答**（refusal ≥ 0.8）に 0.5 未満の弱いセンチネルが付いた場合は flag として記録する。
-   秘密・個人データ・保護されたテキストの漏えい（`sid`、`prv`、`ipv`）は例外。拒否文にも含まれうるため。
-4. **センチネルだけが見つけた個人データ**はブロックせずマスクして届ける。センチネルが 0.8 に達した場合を除く。
-5. **信頼度が低い**（0.65 未満）所見やニアミスはレビューへ。ただし Jev が意図を良性と 0.5 以上の信頼度で
-   判断した場合は除く。
-6. **エスカレートしない会話**（escalation ≤ 0.5）は flag まで。`cse` と `ssh` を除く。
-
-```
-u_k                 = finding from the sentinel only  ∧  choice_k < 0.02      (uncorroborated)
-never_below         applied only if ¬u_k ∨ p ≥ θ_block
-u_k ∧ p < θ_block                                                    → at most flag
-output ∧ refusal ≥ 0.8 ∧ u_k ∧ p < 0.5 ∧ k ∉ {sid, prv, ipv}         → flag
-u_k ∧ route_k = redact ∧ action = block ∧ p < 0.8                    → review (masked)
-confidence gate:  conf < 0.65 ∧ (finding ∨ p ≥ θ_flag / 2) → review,  unless intent = benign ∧ conf ≥ 0.5
-conversation:     escalation ≤ 0.5 → at most flag,  except cse, ssh
-```
-
-コード：`u_k` [`decide`](python/src/guardrail_chatbot_jev/decide.py#L57), `never_below` [`_finding`](python/src/guardrail_chatbot_jev/decide.py#L212), weak [`decide`](python/src/guardrail_chatbot_jev/decide.py#L70), refusal [`_cap_uncorroborated_on_refusal`](python/src/guardrail_chatbot_jev/decide.py#L245), redact [`_redact_instead_of_block`](python/src/guardrail_chatbot_jev/decide.py#L270), gate [`_confidence_gate`](python/src/guardrail_chatbot_jev/decide.py#L378), conversation [`no-escalation-caps-conversation`](policies/standard-v1.json#L700), settings [`sentinel_corroboration`](policies/standard-v1.json#L23) / [`confidence_gate`](policies/standard-v1.json#L32), [`spc`](policies/standard-v1.json#L328), [`ncr`](policies/standard-v1.json#L207), [`iwp`](policies/standard-v1.json#L83)
-
-### リアルタイムでのレビュー
-
-`ReviewHandling: ReviewAsAudit`（[`review_handling`](python/src/guardrail_chatbot_jev/guard.py#L107)、[`_audit`](python/src/guardrail_chatbot_jev/guard.py#L314)）：内容を止めるのは `block` のみ。`review` は配信して優先監査へ、`flag` は
-サンプリング監査へ回す。fail-closed の面の degraded 判定は保留のまま。
-
-### 結果
-
-| 実測、223 会話 | フロア（以前） | 帰属（現在） |
+| | 以前の設計（セッション下限） | 現在（帰属判定） |
 | --- | --- | --- |
 | 保留された無害なターン | 171 / 194 | **0 / 194** |
-| 検出した有害な応答 | 19 / 19 | **19 / 19** |
-| 検出したエスカレーション | 9 / 9 | **9 / 9** |
-| レビューに回った無害な会話 | 172 / 194 | **2 / 194** |
+| 検出された有害な返答 | 19 / 19 | **19 / 19** |
+| フラグされたエスカレーション | 9 / 9 | **9 / 9** |
+| レビュー待ちになった無害な会話 | 172 / 194 | **2 / 194** |
 
-| 再判定、記録済み約 5,000 件 | 無害の保留 | 違反の検出 |
-| --- | --- | --- |
-| 最終較正の前 | 0.62 % | 100 % |
-| 最終較正の後 | **0.04 %** | **100 %** |
-| リアルタイム（`ReviewAsAudit`） | **0.02 %** 停止 | 有害な応答はすべて停止 |
+保留されたメッセージはプレースホルダーとしてセッションに残り、チャットモデルにはどのカテゴリで保留されたかだけが伝えられ、本文は決して渡されません。そのため「やって」のような追質問にも文脈に沿って答えられます。手法、すべての設定としきい値、数式、アブレーション、リプレイ結果は [docs/multiturn.ja.md](docs/multiturn.ja.md) にあります。シミュレーションのシナリオはオフラインで再実行できます：
 
-データセット、手順、アブレーション、ノイズ、回帰、再現手順は[英語版](README.md#multi-turn)を参照。
-
----
-
-## 自分のコンプライアンス領域を足す
-
-同梱のタクソノミーは、どのデプロイでも共通する部分です。規制のある製品がその上に必要とするものは
-固有で、診療所なら用量の指示、証券会社なら利回りの約束が問題になります。フォークではなくオーバーレイ
-として足せば、上流の更新を受け取り続けられます。
-
-```python
-policy = overlay(Policy.bundled(), MY_DOMAIN)   # 同梱の 18 カテゴリに自分のぶんを足す
-guard = Guard(policy)
+```bash
+cd ts && npm test
 ```
 
-足せるものは 4 つです。**カテゴリ**（危害とそのしきい値）、**シグナル**（ルールが読むための質問を
-もう 1 つ）、**ルール**（それらをつなぐ論理）、そして **プレフィルタのパターン**（決定的な部分。
-モデルを 1 回も呼ばずに決着します）。
-
-[`examples/domain_policy.py`](examples/domain_policy.py) が実行可能な例で、間違えやすい 4 点を
-そのまま示します。
-
-- ルールはルートを設定できません。ルートはカテゴリに属するので、ルートを持つカテゴリの finding を
-  追加することで到達します。
-- `never_below` は「このカテゴリが発火したら X より軽くしない」という意味です。カテゴリの最低
-  しきい値を下回れば何も発火しないので、実際のスイッチは `flag` の数値です。
-- 同梱の緩和ルールは新しいカテゴリにも効きます。効かせたくなければ各ルールの `except_categories`
-  に名前を入れてください。
-- 壊れたオーバーレイは最初のリクエストではなく、読み込み時に拒否されます。
-
-そのうえで較正してください。同梱のしきい値も、あなたが書くしきい値も、誰かが選んだ数値であって、
-誰かが測った数値ではありません。
-
----
-
-## レイテンシと体験
-
-1 ターンごとに 1 秒足すガードレールは、ひと月もたたずに切られます。それを避ける鍵は二つ、Jev 自体の
-性質と、呼び出しをどこに置くかです。
-
-**Jev に尋ねるのは安い。** 1 往復、70〜500ms。出力トークンは無料で、同じリクエスト内の質問は並行して
-答えが返るので、カテゴリを 1 つ増やしても、その上にセンチネル質問を足しても、かかるのは入力トークン
-数個でレイテンシはほぼゼロです。ポリシー全体をカテゴリごとの呼び出しに分けず、1 リクエストで送るのは
-このためです。
-
-**入力検査はモデル呼び出しの前ではなく、横で走らせる。** 直列にすればその検査のレイテンシがまるごと
-乗ります。並行なら足されるものはほとんどありません。どうせモデルが最初のトークンを出すまでに
-500ms 以上かかるからです。
-
-```python
-gate = asyncio.ensure_future(guard.acheck_input(message, session=session))
-draft = asyncio.ensure_future(my_llm.generate(message))
-
-verdict = await gate
-if not verdict.allowed:
-    draft.cancel()                 # ユーザーには何も届いていない
-    return safe_response(verdict)
-reply = await draft
+```text
+floor: held 17/18 benign, 8/8 harmful
+attribute: held 0/18 benign, 8/8 harmful
 ```
 
-```typescript
-const [verdict, draft] = await Promise.all([
-  guard.checkInput(message, { session }),
-  myLlm.generate(message),
-]);
-if (!verdict.allowed) return safeResponse(verdict);  // 下書きは破棄される
-return draft;
-```
+## ベトナム準拠パック
 
-代償は、捨てることになる下書きに使ったトークンです。違反ターンが全体の 2% 程度を下回るなら、それは
-削れた待ち時間より安く済みます。違反プロンプトをモデルに一切触れさせないという規定があるなら、直列に
-戻して、レイテンシを承知のうえで払ってください。
+ベトナムの AI サービス向けに、`vietnam-compliance-v1` ポリシーは 18 カテゴリに 5 つのグループを加えます。各グループは根拠となる法律を示し、モデルに書かせる代わりにベトナム語、英語、中国語の定型返答で応じます。
 
-**1 チャンク遅れで流す。** ストリーミングの返信は最初のトークンより前には検査できず、最後のトークンを
-待つ検査はもうストリーミングではありません。`guard.stream()` は文の境界で切り、各チャンクをその検査が
-返るまで押さえ、そのあいだモデルには次のチャンクを作らせます。つまり完全なレイテンシを払うのは最初の
-チャンクだけです。
-
-```python
-async for event in guard.stream(my_llm.stream(message), user_message=message, session=session):
-    if event.type == "delta":
-        yield event.text
-    elif event.type == "blocked":
-        yield safe_response(event.verdict)
-```
-
-ストリーム途中の検査が尋ねるのはセンチネル質問だけ、つまり見落としが許されないカテゴリだけです。
-完全な返信には最後に全質問が投げられ、その判定は `done` イベントで届きます。`chunk_chars`（既定 280）
-で、往復の回数とテキストを押さえる強さを調整します。
-
-**避けられる呼び出しはそもそも出さない。** 繰り返し内容でのキャッシュヒットと、明らかな事例での
-プレフィルタヒットは、どちらもネットワークに触れずその場で決着します。
-
-**Jev の遅さを自分の障害にしないこと。** `timeout` を設定してください。同梱ポリシーは入力で
-*フェイルオープン*、出力で *フェイルクローズ* です（`on_error: {input: fail_open, output:
-fail_closed}`）。自前の安全機構を持つモデルの手前でのタイムアウトは穏やかに劣化しますが、出力検査の
-背後には何もありません。どちらの場合も判定は `degraded: true` を帯びるので、その件数は別に数えて
-ください。
-
-| 経路 | 増えるレイテンシ |
+| グループ | 根拠 |
 | --- | --- |
-| プレフィルタヒット | なし、ネットワーク不要 |
-| キャッシュヒット | なし、ネットワーク不要 |
-| 入力検査、モデルと並行 | ほぼなし |
-| 入力検査、直列 | 70〜500ms |
-| ストリーミング返信 | 最初のチャンクのみ |
+| `vsv` 領土主権 | サイバーセキュリティ法 |
+| `vas` 国家に反する宣伝 | サイバーセキュリティ法 |
+| `vld` 国家指導者と国の象徴への侮辱 | サイバーセキュリティ法 |
+| `vcs` 虚偽情報と公共秩序の攪乱 | サイバーセキュリティ法 |
+| `vai` AI の欺瞞的・操作的な利用 | 人工知能法 |
 
-**そして体験を決めるのは `route` で、ブロックではありません。** 断ることしかできないガードレールは、
-守っている相手には壊れた製品のように見えます。`route` は深刻度とは別に決まるので、同じ `review` でも、
-電話番号を伏せたうえで返信を送る、回答の向きを変える、支援窓口を案内する、といった扱いが選べます。
-「それはお手伝いできません」の一言で終わらせる必要はありません。6 つの route をすべて配線すれば、
-ほとんどのユーザーはガードレールの存在に気づきません。
+普通の質問（天気、指導者の経歴、組織の問い合わせ窓口）はブロックしないよう調整されています。範囲、透明性、Python と Go での統合、較正、人による監督、記録の保持を扱う手順ガイド：
+[English](https://github.com/Nhat-Nguyet/guardrail-chatbot-jev/blob/guardrail-vietnam-compliance/docs/vietnam-compliance.md) ·
+[Tiếng Việt](https://github.com/Nhat-Nguyet/guardrail-chatbot-jev/blob/guardrail-vietnam-compliance/docs/vietnam-compliance.vi.md) ·
+[中文](https://github.com/Nhat-Nguyet/guardrail-chatbot-jev/blob/guardrail-vietnam-compliance/docs/vietnam-compliance.zh.md)。
+[Nhat Nguyet AI アシスタント](https://nhatnguyet.org/tro-ly-ai)の裏側で本番稼働しています。
 
----
+## 何が違うか
 
-## 本番に出すために
+- **スコアではなく二つの軸。** 深刻度（`action`）と扱い（`route`）を別々に決めるため、リスクのある内容の多くは拒否ではなく、マスク、方向転換、支援情報の提示で処理されます。
+- **追跡できる検出結果。** カテゴリは公開標準に由来し、各検出結果は対応する標準を名指しします。
+- **ひとつのポリシー、三つの言語。** Python、TypeScript、Go が同じファイルを読み、同じ判定に至ります。三者は 40,000 件のランダムな回答セットで一致します。ある言語で保存したセッションは別の言語で復元できます。
+- **マルチターンの帰属判定**。セッション全体にかける下限ではなく、上記のとおり計測済み。
+- **サービスではなくライブラリ。** 判定を返し、決めるのはあなたのコードです。知らないところで何かがブロックされることはなく、サードパーティのパッケージも入りません。
 
-クイックスタートは実際に動くコードですが、本番では 3 回の呼び出しだけでは足りません。以下はすべて
-パッケージに同梱されています。キャッシュ、プレフィルタ、ストリーミング、失敗モードについては前の節で
-詳しく触れています。
+隣接する課題を解く別のツールもあり、そちらが合う場合もあります：
 
-- **判定キャッシュ** と **決定的プレフィルタ** - 検査のコストをゼロにする二つの手段。
-- **サーフェスごとの失敗モード** - 入力はオープン、出力はクローズ。
-- **ストリーミング** - 検査より 1 チャンク遅れてテキストを解放するので、未検査のものがユーザーに
-  届くことはありません。
-- **セッション** - リスクが 10 ターンの履歴ウィンドウ上でターンをまたいで持ち越され、直前に
-  カテゴリを踏んだ相手は次のターンでより厳しい基準で見られます。
-- **オブザーバーフック** - キャッシュ済み・degraded を含むすべての判定を、メトリクスへ。
+| 必要なもの | 検討候補 |
+| --- | --- |
+| 自前でホストする安全性分類器 | Llama Guard |
+| プログラム可能な対話フローとトピックのガードレール | NeMo Guardrails |
+| 構造化出力や形式のためのバリデーター | Guardrails AI |
+| ローカルで動く入力・出力スキャナー | LLM Guard |
+| プロンプトインジェクションを選別するホスト型 API | Lakera Guard |
 
-```python
-from guardrail_chatbot_jev import Guard, LRUCache
+## 本番運用の準備
 
-guard = Guard(cache=LRUCache(), observer=metrics.emit, timeout=2.0)
-```
+以下はすべてパッケージに含まれます。詳細、コード、レイテンシ表は [docs/production.ja.md](docs/production.ja.md) と[ガイド](docs/guide.ja.md)にあります。
 
-**セッションはリクエストより長く生きなければなりません。** ここがサーバーの静かに間違える場所です。
-複数ワーカーでプロセスごとに状態を持つと、どのワーカーもすべての会話が今始まったと思い込み、監視状態と
-保留ターンの持ち越しがログに何も残さず止まります。`Session.as_state()` と `Session.from_state()` がストアの保存
-するもので、[`examples/session_store.py`](examples/session_store.py) にワーカー 1 つ向けの上限付き
-インメモリ版と、それ以上のための Redis 版があります。
-
----
+- **入力検査をモデル呼び出しの前ではなく横で走らせる**ので、レイテンシはほとんど増えません。
+- **ストリーミング**は検査の一つ後ろでテキストを出し、待つのは最初のチャンクだけです。
+- **判定キャッシュと決定的プレフィルター**が、繰り返しや明白なケースをネットワーク呼び出しなしで処理します。
+- **面ごとの障害時動作**：入力はオープン、出力はクローズ、常に `degraded` を付与。
+- **セッション**は `as_state()` / `from_state()` で永続化できます。[`examples/session_store.py`](examples/session_store.py) にプロセス内と Redis のストアがあります。
+- **リアルタイムモード**（`review_handling="audit"`）：内容を止めるのは `block` のみで、すべての判定に監査レベルが付きます。
+- **独自のコンプライアンス領域**を、フォークではなく同梱ポリシーへのオーバーレイとして追加：[`examples/domain_policy.py`](examples/domain_policy.py)。
+- **CLI** は終了コードで判定を返し、`--dry-run` でキーなしに送信内容をそのまま表示します。
+- **オフライン調整**：実行を一度記録し、[`scripts/sweep.py`](scripts/sweep.py) で新しいしきい値に対して再生します。
 
 ## サンプル
 
-どれも API キーなしで動きます。モデルと判定は記録済みの回答に切り替わるので、どの経路も実際に走ります。
+どれも API キーなしで動き、記録済みの回答にフォールバックします。
 
 | | |
 | --- | --- |
-| [`integration.py`](examples/integration.py) · [`integration.ts`](examples/integration.ts) | ガード付き 1 ターンの全体。入力検査をモデル呼び出しと並行、ストリーミング、キャッシュ、プレフィルタ、セッション、そして同じ質問を 4 言語で |
-| [`chatbot_server.py`](examples/chatbot_server.py) | 同じターンを HTTP の後ろに。FastAPI、Claude、SSE ストリーミング、会話ごとのセッション |
-| [`domain_policy.py`](examples/domain_policy.py) | 同梱パックの上に自分のコンプライアンス領域を足す |
+| [`integration.py`](examples/integration.py) · [`integration.ts`](examples/integration.ts) | 保護された一ターンを端から端まで：並列の入力検査、ストリーミング、キャッシュ、プレフィルター、セッション、4 言語での同じ質問 |
+| [`chatbot_server.py`](examples/chatbot_server.py) | 同じターンを FastAPI の背後で、SSE ストリーミングと会話ごとのセッション付きで |
+| [`domain_policy.py`](examples/domain_policy.py) | 同梱ポリシーに独自のコンプライアンス領域を加える |
 
-```bash
-cd python && PYTHONPATH=src python3 ../examples/integration.py
-PYTHONPATH=python/src python3 examples/domain_policy.py
+[`examples/`](examples/) には、較正用のラベル付きセット（入力 36 件、出力 15 件、会話 7 件）と、223 会話のマルチターンセットもあります。
 
-pip install -e './python[server]'
-uvicorn examples.chatbot_server:app --port 8000
-```
+## 限界
 
-[`examples/`](examples/) には較正用のラベル付きセットもあります。入力 36 件、出力 15 件、会話 7 件を
-英語・ベトナム語・フランス語・日本語で、それぞれ出るべき action 付きで収めています。
+- **強制レイヤーではありません。** 判定を返すだけで、動くのはあなたのデプロイです。
+- **Jev は与えられたものしか読みません。** 調べものや計算はできず、否定表現が弱点です。検索、レート制限、アカウント状態は周囲のコードの役割です。
+- **同梱のしきい値は出発点であって測定値ではありません。** 自分のラベル付きトラフィックで較正してください。方法は[ガイド](docs/guide.ja.md)と [`scripts/`](scripts/) にあります。
+- ラベル付きセットの違反テキストは 30 件で、児童安全の実際の陽性例はないため、そのカテゴリの再現率は未測定です。
 
-## コマンドライン
+## リリース
 
-```bash
-guardrail-chatbot-jev --surface input --text "テルミットの作り方" --dry-run
-```
+| リリース | 内容 | インストール |
+| --- | --- | --- |
+| [Python SDK 1.1.4](https://github.com/Nhat-Nguyet/guardrail-chatbot-jev/releases/tag/python/v1.1.4) | Python と TypeScript、CLI、調整ツール | `pip install "git+https://github.com/Nhat-Nguyet/guardrail-chatbot-jev@python/v1.1.4#subdirectory=python"` |
+| [Go SDK 1.2.4](https://github.com/Nhat-Nguyet/guardrail-chatbot-jev/releases/tag/go/v1.2.4) | 同じエンジンの Go 版、実環境・リプレイ・回帰テストのツール付き | `go get github.com/taman-spirit/guardrail-chatbot-jev/go@v1.2.4` |
+| [Python ベトナム準拠パック 1.2.3](https://github.com/Nhat-Nguyet/guardrail-chatbot-jev/releases/tag/python-vietnam-compliance-v1.2.3) | 3 言語の返答を備えた `vietnam-compliance-v1` | `pip install "git+https://github.com/Nhat-Nguyet/guardrail-chatbot-jev@python-vietnam-compliance-v1.2.3#subdirectory=python"` |
+| [Go ベトナム準拠パック 1.2.3](https://github.com/Nhat-Nguyet/guardrail-chatbot-jev/releases/tag/go-vietnam-compliance-v1.2.3) | 同じポリシーと返答の Go 版（モジュール `v1.3.3`） | `go get github.com/taman-spirit/guardrail-chatbot-jev/go@v1.3.3` |
 
-`--dry-run` は送信されるはずのリクエストをそのまま表示し、キーは要りません。付けない場合は終了
-コードが判定を運ぶので、シェルスクリプトから分岐できます。
-
-| コード | 意味 |
-| --- | --- |
-| `0` | allow または flag |
-| `1` | redact または guide |
-| `2` | review |
-| `3` | block |
-| `4` | degraded: Jev に到達できず、実際には何も検査されていない |
-
-`4` を分けているのは意図的です。入力サーフェスでは同梱ポリシーがフェイルオープンなので、degraded な
-判定の action は `allow` になります。それを成功として返すと、`guardrail-chatbot-jev ... && send` に
-対して「一度も走っていない検査を通った」と伝えることになります。
-
----
-
-## ドキュメント
-
-完全ガイドでは、統合、ポリシーの運用、較正、各判定の背後にある仕組みを扱います。
-
-| | |
-| --- | --- |
-| [English](docs/guide.md) | [Tiếng Việt](docs/guide.vi.md) |
-| [Français](docs/guide.fr.md) | [日本語](docs/guide.ja.md) |
-
-ほかに[危害タクソノミー](skill/guardrail-chatbot-jev/references/taxonomy.md)と、同じ検査を包んだ Claude
-スキル [`skill/guardrail-chatbot-jev/`](skill/guardrail-chatbot-jev/) があります。
-
----
-
-## これは何ではないか
-
-**強制の層ではありません。** 判定を返すだけで、それをどう扱うかはあなたのデプロイが決めます。
-ここにあるものが単独で何かを止めることはありません。
-
-**Jev は渡されたものしか読みません。** 検索はできず、数えるのは当てにならず、算術もしません。
-字面どおりに読むため、否定と含意が弱点です。検索、レート制限、アカウント状態、決定的なチェックは、
-その周囲のコードの仕事です。
-
-**同梱のしきい値は出発点であって、測定結果ではありません。** 選択肢の広い質問が確率をどう配分するか
-から導いた値です。本番で信頼する前に、自前のラベル付きデータで較正してください。方法はガイドに
-あり、[`scripts/`](scripts/) に道具が揃っています。
-
----
+Python と TypeScript は `main`、Go は `go-sdk`、ベトナム準拠パックは `guardrail-vietnam-compliance`（Python）と `go-vietnam-compliance`（Go）にあります。変更履歴は [CHANGELOG.md](CHANGELOG.md) にあります。
 
 ## コントリビュート
 
-Issue と Pull Request を歓迎します。[CONTRIBUTING.md](CONTRIBUTING.md) をご覧ください。どちらの
-テストスイートも API キーとネットワークなしで動くので、変更の検証は簡単です。
+Issue とプルリクエストを歓迎します。[CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。どちらのテストもキーやネットワークなしで動きます：
 
 ```bash
-cd python && python3 -m pytest -q     # 81 tests
-cd ts && npm test                     # 57 tests
+cd python && python -m pytest -q     # 101 tests
+cd ts && npm test                    # 83 tests
 ```
 
-`scripts/verify-all.sh` は残りもすべて実行します。ポリシーパック、ラベル付きセット、CLI、各サンプル、
-オフラインのチューニングツール、そしてパッケージングです。
-
-脆弱性の報告については [SECURITY.md](SECURITY.md) を参照してください。
+`scripts/verify-all.sh` はポリシーパック、ラベル付きセット、CLI、すべてのサンプル、パッケージングも検証します。脆弱性の報告は [SECURITY.md](SECURITY.md) を参照してください。
 
 ## ライセンス
 
-[CC BY-NC 4.0](LICENSE)（クリエイティブ・コモンズ 表示 - 非営利 4.0 国際）。クレジットを表示すれば、非営利目的に限り利用・共有・改変できます。商用利用には著作権者の個別の許諾が必要です。
+[CC BY-NC 4.0](LICENSE)：非営利目的であれば、出典を示して利用、共有、改変できます。商用利用には著作権者 Nhat Nguyet の個別の許可が必要です。
+
+## 引用
+
+```bibtex
+@software{guardrail_chatbot_jev,
+  title   = {guardrail-chatbot-jev: content guardrails for AI chatbots},
+  author  = {{Nhat Nguyet}},
+  year    = {2026},
+  version = {1.1.4},
+  url     = {https://github.com/Nhat-Nguyet/guardrail-chatbot-jev}
+}
+```
